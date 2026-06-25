@@ -1,0 +1,15 @@
+{
+  "name": "profiler-ai",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "yarn workspace @profiler-ai/api dev",
+    "dev:mobile": "yarn workspace @profiler-ai/mobile start",
+    "build:api": "yarn workspace @profiler-ai/api build",
+    "build:shared": "yarn workspace @profiler-ai/shared build"
+  }
+}
