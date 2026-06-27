@@ -69,6 +69,52 @@ export class AuthService {
     return { ...tokens, user: profile };
   }
 
+  async googleLogin(idToken: string): Promise<AuthResponse> {
+    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+    if (!res.ok) throw new UnauthorizedException('유효하지 않은 Google 토큰입니다.');
+
+    const payload = (await res.json()) as {
+      email?: string;
+      name?: string;
+      picture?: string;
+      aud?: string;
+    };
+
+    const clientId = this.config.get<string>('google.clientId');
+    if (!payload.email || payload.aud !== clientId) {
+      throw new UnauthorizedException('Google 인증에 실패했습니다.');
+    }
+
+    const { data: existing } = await this.supabase.db
+      .from('users')
+      .select('id, email, nickname, role, avatar_url, bio, university_id, is_verified, created_at')
+      .eq('email', payload.email)
+      .maybeSingle();
+
+    let user = existing;
+    if (!user) {
+      const nickname = payload.name ?? payload.email.split('@')[0];
+      const { data: created, error } = await this.supabase.db
+        .from('users')
+        .insert({
+          email: payload.email,
+          password_hash: '',
+          nickname,
+          role: UserRole.STUDENT,
+          avatar_url: payload.picture ?? null,
+        })
+        .select('id, email, nickname, role, avatar_url, bio, university_id, is_verified, created_at')
+        .single();
+
+      if (error || !created) throw new ConflictException('계정 생성에 실패했습니다.');
+      user = created;
+    }
+
+    const profile = await this.buildUserProfile(user);
+    const tokens = this.issueTokens(user.id as string, user.email as string, user.role as string);
+    return { ...tokens, user: profile };
+  }
+
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
     try {
       const payload = this.jwt.verify<{ sub: string; email: string; role: string }>(refreshToken, {

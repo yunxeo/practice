@@ -20,9 +20,10 @@ interface Props {
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  labelStyle?: TextStyle;
 }
 
-export function Button({ label, onPress, variant = 'primary', size = 'md', loading, disabled, style }: Props) {
+export function Button({ label, onPress, variant = 'primary', size = 'md', loading, disabled, style, labelStyle }: Props) {
   const isDisabled = disabled || loading;
 
   return (
@@ -35,7 +36,7 @@ export function Button({ label, onPress, variant = 'primary', size = 'md', loadi
       {loading ? (
         <ActivityIndicator color={variant === 'primary' || variant === 'danger' ? '#fff' : Colors.primary} size="small" />
       ) : (
-        <Text style={[styles.label, labelStyles[variant], labelSizeStyles[size]]}>{label}</Text>
+        <Text style={[styles.label, labelStyles[variant], labelSizeStyles[size], labelStyle]}>{label}</Text>
       )}
     </TouchableOpacity>
   );

@@ -21,6 +21,10 @@ export default () => ({
     model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
   },
 
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+  },
+
   throttle: {
     ttl: parseInt(process.env.THROTTLE_TTL ?? '60', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),

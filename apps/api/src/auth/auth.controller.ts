@@ -19,6 +19,11 @@ class RefreshDto {
   refreshToken!: string;
 }
 
+class GoogleDto {
+  @IsString()
+  idToken!: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -33,6 +38,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  googleLogin(@Body() dto: GoogleDto) {
+    return this.authService.googleLogin(dto.idToken);
   }
 
   @Post('refresh')

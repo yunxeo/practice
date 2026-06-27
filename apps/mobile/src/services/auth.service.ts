@@ -1,6 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
 import { api } from './api';
 import { AuthResponse, UserProfile } from '../types';
+import { secureStorage } from '../utils/secureStorage';
 
 function unwrap<T>(res: { data: { data: T } }): T {
   return res.data.data;
@@ -26,13 +26,20 @@ export const authService = {
     return unwrap(res);
   },
 
+  async googleLogin(idToken: string): Promise<AuthResponse> {
+    const res = await api.post<{ data: AuthResponse }>('/auth/google', { idToken });
+    const auth = unwrap(res);
+    await storeTokens(auth.accessToken, auth.refreshToken);
+    return auth;
+  },
+
   async logout() {
-    await SecureStore.deleteItemAsync('access_token');
-    await SecureStore.deleteItemAsync('refresh_token');
+    await secureStorage.deleteItem('access_token');
+    await secureStorage.deleteItem('refresh_token');
   },
 };
 
 async function storeTokens(accessToken: string, refreshToken: string) {
-  await SecureStore.setItemAsync('access_token', accessToken);
-  await SecureStore.setItemAsync('refresh_token', refreshToken);
+  await secureStorage.setItem('access_token', accessToken);
+  await secureStorage.setItem('refresh_token', refreshToken);
 }
