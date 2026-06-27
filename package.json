@@ -7,9 +7,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:api": "yarn workspace @profiler-ai/api dev",
-    "dev:mobile": "yarn workspace @profiler-ai/mobile start",
-    "build:api": "yarn workspace @profiler-ai/api build",
-    "build:shared": "yarn workspace @profiler-ai/shared build"
+    "postinstall": "node scripts/link-mobile-deps.js",
+    "dev:api": "npm run --workspace=apps/api dev",
+    "dev:mobile": "npm run --workspace=apps/mobile start",
+    "build:api": "npm run --workspace=apps/api build",
+    "build:shared": "npm run --workspace=packages/shared build"
   }
 }
