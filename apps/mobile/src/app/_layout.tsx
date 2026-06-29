@@ -2,9 +2,15 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuthStore } from '../stores/auth.store';
 import { useThemeStore } from '../stores/theme.store';
 import { useTheme } from '../hooks/useTheme';
+
+// Must run at module level — before Expo Router changes the URL via history.replaceState.
+// The OAuth popup loads at http://localhost:8081/#id_token=TOKEN, and the router
+// would navigate away before welcome.tsx is imported, erasing the token from the URL.
+WebBrowser.maybeCompleteAuthSession();
 
 const queryClient = new QueryClient({
   defaultOptions: {
