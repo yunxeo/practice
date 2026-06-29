@@ -15,9 +15,12 @@ const { height } = Dimensions.get('window');
 // Used as fallback when the API server is unreachable (dev/demo mode).
 function decodeGoogleIdToken(token: string): { email?: string; name?: string; picture?: string; sub?: string } | null {
   try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return decoded;
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    // atob() returns a binary string — must re-encode as UTF-8 for Korean/CJK names
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return null;
   }
